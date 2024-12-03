@@ -7,10 +7,14 @@ import java.util.Objects;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.jlab.jaws.persistence.model.Node;
 
 @Entity
 @Table(name = "LOCATION", schema = "JAWS_OWNER")
+@Audited
 public class Location implements Serializable, Node, Comparable<Location> {
   private static final long serialVersionUID = 1L;
 
@@ -36,10 +40,12 @@ public class Location implements Serializable, Node, Comparable<Location> {
 
   @JoinColumn(name = "PARENT_ID", referencedColumnName = "LOCATION_ID", nullable = true)
   @ManyToOne(optional = true)
+  @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
   private Location parent;
 
   @OneToMany(mappedBy = "parent")
   @OrderBy("weight ASC, name ASC")
+  @NotAudited
   private List<Location> childList;
 
   @JoinTable(
@@ -51,6 +57,7 @@ public class Location implements Serializable, Node, Comparable<Location> {
         @JoinColumn(name = "ALARM_ID", referencedColumnName = "ALARM_ID", nullable = false)
       })
   @ManyToMany
+  @NotAudited
   private List<AlarmEntity> alarmList;
 
   public BigInteger getLocationId() {
